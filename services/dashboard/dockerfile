@@ -1,0 +1,14 @@
+FROM golang:1.23-alpine AS builderr
+WORKDIR /app
+COPY go.mod ./
+RUN go mod download
+COPY . .
+RUN CGO_ENABLED=0 go build -o server .
+
+FROM alpine
+WORKDIR /
+RUN adduser -D -u 10001 appuser
+COPY --from=builderr /app/server /server
+USER appuser
+EXPOSE 8081
+CMD ["/server"]
