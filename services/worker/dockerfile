@@ -11,5 +11,5 @@ RUN adduser -D -u 10001 appuser
 COPY --from=builderr /app/server /server
 USER appuser
 # for health check
-EXPOSE 8089 
+EXPOSE 8089
 CMD ["/server"]
