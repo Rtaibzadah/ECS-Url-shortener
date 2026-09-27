@@ -8,6 +8,7 @@ variable "vpc_cidr" {
 }
 
 variable "private_subnet_cidr" {
+  type = map(string)
   #map: "key" = "value"
   default = {
     "eu-west-2a" = "10.0.1.0/24"
@@ -16,8 +17,18 @@ variable "private_subnet_cidr" {
 }
 
 variable "public_subnet_cidr" {
+  type = map(string)
   default = {
     "eu-west-2a" = "10.0.3.0/24"
     "eu-west-2b" = "10.0.4.0/24"
   }
+}
+
+variable "vpc_endpoints_sg" {
+  type = string
+}
+
+variable "region" {
+  type    = string
+  default = "eu-west-2"
 }

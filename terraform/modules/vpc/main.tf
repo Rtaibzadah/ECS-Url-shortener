@@ -58,3 +58,74 @@ resource "aws_internet_gateway" "gw" {
 
   tags = merge(var.common_tags, { Name = "${var.common_tags.Project}-igw" })
 }
+
+#RDB subnet group
+resource "aws_db_subnet_group" "postgres" {
+  name       = "postgres-subnet-group"
+  subnet_ids = [for subnet in aws_subnet.private_subnet : subnet.id]
+
+  tags = merge(var.common_tags, { Name = "${var.common_tags.Project}-postgres-subnet-group" })
+}
+
+#elasticache
+resource "aws_elasticache_subnet_group" "elasticache" {
+  name       = "elasticache-subnet-group"
+  subnet_ids = [for subnet in aws_subnet.private_subnet : subnet.id]
+
+  tags = merge(var.common_tags, { Name = "${var.common_tags.Project}-elasticache-subnet-group" })
+}
+
+#VPC Endpoints
+resource "aws_vpc_endpoint" "s3" {
+  vpc_id            = aws_vpc.main.id
+  service_name      = "com.amazonaws.${var.region}.s3"
+  vpc_endpoint_type = "Gateway"
+  route_table_ids   = [aws_route_table.private_rt.id]
+
+  tags = merge(var.common_tags, { Name = "${var.common_tags.Project}-s3-endpoint" })
+}
+
+#VPC Endpoints (interface)
+resource "aws_vpc_endpoint" "ecr_dkr" {
+  vpc_id              = aws_vpc.main.id
+  service_name        = "com.amazonaws.${var.region}.ecr.dkr"
+  vpc_endpoint_type   = "Interface"
+  subnet_ids          = [for subnet in aws_subnet.private_subnet : subnet.id]
+  security_group_ids  = [var.vpc_endpoints_sg]
+  private_dns_enabled = true
+
+  tags = merge(var.common_tags, { Name = "${var.common_tags.Project}-ecr-dkr-endpoint" })
+}
+
+resource "aws_vpc_endpoint" "logs" {
+  vpc_id              = aws_vpc.main.id
+  service_name        = "com.amazonaws.${var.region}.logs"
+  vpc_endpoint_type   = "Interface"
+  subnet_ids          = [for subnet in aws_subnet.private_subnet : subnet.id]
+  security_group_ids  = [var.vpc_endpoints_sg]
+  private_dns_enabled = true
+
+  tags = merge(var.common_tags, { Name = "${var.common_tags.Project}-logs-endpoint" })
+}
+
+resource "aws_vpc_endpoint" "sqs" {
+  vpc_id              = aws_vpc.main.id
+  service_name        = "com.amazonaws.${var.region}.sqs"
+  vpc_endpoint_type   = "Interface"
+  subnet_ids          = [for subnet in aws_subnet.private_subnet : subnet.id]
+  security_group_ids  = [var.vpc_endpoints_sg]
+  private_dns_enabled = true
+
+  tags = merge(var.common_tags, { Name = "${var.common_tags.Project}-sqs-endpoint" })
+}
+
+resource "aws_vpc_endpoint" "secretsmanager" {
+  vpc_id              = aws_vpc.main.id
+  service_name        = "com.amazonaws.${var.region}.secretsmanager"
+  vpc_endpoint_type   = "Interface"
+  subnet_ids          = [for subnet in aws_subnet.private_subnet : subnet.id]
+  security_group_ids  = [var.vpc_endpoints_sg]
+  private_dns_enabled = true
+
+  tags = merge(var.common_tags, { Name = "${var.common_tags.Project}-secretsmanager-endpoint" })
+}
