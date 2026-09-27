@@ -17,6 +17,8 @@ jobs:
 
       - name: Run pre-commit
         uses: pre-commit/action@v3.0.1
+        env:
+          SKIP: terraform_fmt,terraform_validate,terraform_tflint,terraform_checkov
 
 #Terraform checks, using matrix to check each environment seperately.
   terraform:
